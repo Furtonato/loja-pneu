@@ -47,12 +47,16 @@ try {
 $produtos_destaque = [];
 try {
     $stmt_destaque = $pdo->query("
-        SELECT id, nome, preco, preco_antigo, imagem_url, ativo, estoque, logo_svg_url
-        FROM produtos
-        WHERE destaque = true
-        ORDER BY nome ASC
-        
-    ");
+    SELECT
+        p.id, p.nome, p.preco, p.preco_antigo, p.imagem_url, p.ativo, p.estoque, p.logo_svg_url,
+        COALESCE(AVG(a.classificacao), 0) AS media_classificacao,
+        COUNT(a.id) AS total_avaliacoes
+    FROM produtos p
+    LEFT JOIN avaliacoes_produto a ON p.id = a.produto_id AND a.aprovado = TRUE
+    WHERE p.destaque = true AND p.ativo = true
+    GROUP BY p.id
+    ORDER BY p.nome ASC
+");
     $produtos_destaque = $stmt_destaque->fetchAll();
 } catch (PDOException $e) {
     error_log("Erro ao buscar produtos em destaque: " . $e->getMessage());
@@ -62,12 +66,16 @@ try {
 $produtos_mais_vendidos = [];
 try {
     $stmt_mv = $pdo->query("
-        SELECT id, nome, preco, preco_antigo, imagem_url, ativo, estoque, logo_svg_url
-        FROM produtos
-        WHERE mais_vendido = true
-        ORDER BY nome ASC
-        
-    ");
+    SELECT
+        p.id, p.nome, p.preco, p.preco_antigo, p.imagem_url, p.ativo, p.estoque, p.logo_svg_url,
+        COALESCE(AVG(a.classificacao), 0) AS media_classificacao,
+        COUNT(a.id) AS total_avaliacoes
+    FROM produtos p
+    LEFT JOIN avaliacoes_produto a ON p.id = a.produto_id AND a.aprovado = TRUE
+    WHERE p.mais_vendido = true AND p.ativo = true
+    GROUP BY p.id
+    ORDER BY p.nome ASC
+");
     $produtos_mais_vendidos = $stmt_mv->fetchAll();
 } catch (PDOException $e) {
     error_log("Erro ao buscar produtos mais vendidos: " . $e->getMessage());
@@ -247,8 +255,10 @@ function getLinkTagClose($banner) {
             backdrop-filter: blur(2px);
             padding: 10px;
             display: flex;
+            flex-direction: column; /* NOVO: Empilha os botões */
             justify-content: center;
-            gap: 10px;
+            align-items: center; /* NOVO: Centraliza os botões */
+            gap: 8px; /* NOVO: Espaço entre botões empilhados */
             opacity: 0;
             visibility: hidden;
             transform: translateY(100%);
@@ -296,8 +306,7 @@ function getLinkTagClose($banner) {
             transition: background-color 0.2s ease, color 0.2s ease;
             background-color: var(--green-accent);
             color: #fff;
-            flex-grow: 1;
-            max-width: 48%;
+            width: 90%; /* NOVO: Botões ocupam 90% da largura */
         }
 
         /* NOVO AJUSTE: Aplicando a variável de cor de acento de hover */
@@ -346,6 +355,12 @@ function getLinkTagClose($banner) {
             .promo-grid { gap: 15px; }
             .product-section { margin-top: 30px; padding-top: 30px; }
 
+            /* NOVO: Esconde botões de hover no mobile */
+             .product-hover-buttons {
+                 display: none !important;
+            }
+        }
+
             /* --- Grid de Produtos Mobile --- */
              .product-section h1 { font-size: 1.3em; }
              .product-grid {
@@ -378,7 +393,7 @@ function getLinkTagClose($banner) {
     position: absolute; /* Flutua sobre a imagem */
     top: 10px;      /* 10px do topo */
     left: 10px;     /* 10px da esquerda */
-    background-color: #18c009ff; /* Qualquer Cor */
+    background-color: #22ac5cff; /* Vermelho (cor da Casas Bahia) */
     color: white;
     padding: 3px 8px;
     font-size: 13px; /* Tamanho da fonte do selo */
@@ -497,6 +512,31 @@ function getLinkTagClose($banner) {
     display: none; /* Garante que não ocupe espaço */
 }
 /* --- FIM NOVOS ESTILOS (ETAPA 2) --- */
+
+/* --- NOVOS ESTILOS - AVALIAÇÕES (CARD) --- */
+.product-rating-card {
+    margin-bottom: 10px;
+    min-height: 20px; /* Garante alinhamento se não houver review */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+.product-rating-card .stars {
+    color: #f39c12; /* Laranja */
+    font-size: 1.1em;
+    line-height: 1;
+}
+.product-rating-card .stars-empty {
+    color: #ddd; /* Cinza */
+    font-size: 1.1em;
+    line-height: 1;
+}
+.product-rating-card .review-count-card {
+    font-size: 0.85em;
+    color: var(--text-color-light);
+}
+/* --- FIM AVALIAÇÕES --- */
     </style>
 </head>
 <body>
@@ -602,7 +642,7 @@ function getLinkTagClose($banner) {
                     <button type="button" class="btn-hover btn-buy-index" data-id="<?php echo $produto['id']; ?>">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" /></svg>
                         COMPRAR
-                    </button>
+                </button>
                 </div>
             <?php else: ?>
                 <div class="product-hover-buttons esgotado">
@@ -611,10 +651,28 @@ function getLinkTagClose($banner) {
             <?php endif; ?>
         </div>
         <div class="product-name-wrapper <?php echo empty($produto['logo_svg_url']) ? 'no-logo' : ''; ?>">
-    <?php if (!empty($produto['logo_svg_url'])): ?>
-        <img src="<?php echo htmlspecialchars($produto['logo_svg_url']); ?>" alt="Logo Marca" class="product-brand-logo-grid">
+            <?php if (!empty($produto['logo_svg_url'])): ?>
+                <img src="<?php echo htmlspecialchars($produto['logo_svg_url']); ?>" alt="Logo Marca" class="product-brand-logo-grid">
+            <?php endif; ?>
+            <h3><?php echo htmlspecialchars($produto['nome']); ?></h3>
+        </div>
+
+        <div class="product-rating-card">
+    <?php if ($produto['total_avaliacoes'] > 0): ?>
+        <?php
+            // Arredonda para a estrela mais próxima (ex: 4.3 vira 4, 4.8 vira 5)
+            $media_arredondada = round($produto['media_classificacao']);
+            $estrelas_cheias = $media_arredondada;
+            $estrelas_vazias = 5 - $estrelas_cheias;
+        ?>
+        <span class="stars">
+            <?php for ($i = 0; $i < $estrelas_cheias; $i++): ?>★<?php endfor; ?>
+        </span>
+        <span class="stars-empty">
+            <?php for ($i = 0; $i < $estrelas_vazias; $i++): ?>★<?php endfor; ?>
+        </span>
+        <span class="review-count-card">(<?php echo $produto['total_avaliacoes']; ?>)</span>
     <?php endif; ?>
-    <h3><?php echo htmlspecialchars($produto['nome']); ?></h3>
 </div>
 
         <div class="price-container">
@@ -625,7 +683,7 @@ function getLinkTagClose($banner) {
         </div>
 
         <div class="frete-gratis-container">
-            <img src="assets/img/frete-gratis.gif" alt="Frete Grátis">
+            <img src="assets/img/frete-gratis.jpg" alt="Frete Grátis">
         </div>
     </a>
 </div>

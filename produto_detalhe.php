@@ -933,7 +933,7 @@ if ($tem_desconto) {
         <span class="preco-antigo-detail">De: R$ <?php echo number_format($preco_antigo, 2, ',', '.'); ?></span>
     <?php endif; ?>
 
-    </div> <?php if ($total_avaliacoes > 0): ?>
+    <?php if ($total_avaliacoes > 0): ?>
 <div class="rating-display-detail">
     <?php
         // Arredonda para a estrela mais próxima
@@ -950,7 +950,9 @@ if ($tem_desconto) {
     <span class="review-count-detail">(<?php echo $total_avaliacoes; ?> Avaliações)</span>
 </div>
 <?php else: ?>
-     <div class="rating-display-detail"></div>
+     <div class="rating-display-detail">
+        <span class="stars-empty">★★★★★</span>
+     </div>
 <?php endif; ?>
 <div class="price-container-detail">
     

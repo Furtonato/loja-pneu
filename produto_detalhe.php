@@ -667,7 +667,7 @@ try {
         }
         /* --- CSS DE/POR PARA PÁGINA DE DETALHE --- */
 .discount-badge-detail {
-    background-color: #e74c3c; /* Vermelho */
+    background-color: #18c009ff; /* Verde */
     color: white;
     padding: 4px 10px;
     font-size: 14px;

@@ -625,7 +625,7 @@ function getLinkTagClose($banner) {
         </div>
 
         <div class="frete-gratis-container">
-            <img src="assets/img/frete-gratis.jpg" alt="Frete Grátis">
+            <img src="assets/img/frete-gratis.gif" alt="Frete Grátis">
         </div>
     </a>
 </div>

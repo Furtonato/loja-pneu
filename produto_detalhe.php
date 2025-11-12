@@ -988,8 +988,26 @@ if ($tem_desconto) {
                 </div>
 
                 <div id="tab-descricao" class="tab-content active">
-                    <p><?php echo nl2br(htmlspecialchars($produto['descricao'])); ?></p>
-                </div>
+    <p>
+        <?php
+        // 1. Torna a descrição segura (impede HTML malicioso)
+        $descricao_segura = htmlspecialchars($produto['descricao'] ?? '');
+
+        // 2. Define as regras de formatação (estilo Markdown/WhatsApp)
+        $regras_formatacao = [
+            '/(\*\*)(.*?)\1/' => '<strong>$2</strong>', // **negrito** vira <strong>negrito</strong>
+            '/(\*)(.*?)\1/'   => '<em>$2</em>',     // *itálico* vira <em>itálico</em>
+            '/(__)(.*?)\1/'  => '<u>$2</u>'       // __sublinhado__ vira <u>sublinhado</u>
+        ];
+
+        // 3. Aplica as regras de formatação
+        $descricao_formatada = preg_replace(array_keys($regras_formatacao), array_values($regras_formatacao), $descricao_segura);
+
+        // 4. Adiciona quebras de linha (como antes) e exibe
+        echo nl2br($descricao_formatada);
+        ?>
+    </p>
+</div>
 
                 <div id="tab-avaliacoes" class="tab-content">
                     <div class="review-list-wrapper">

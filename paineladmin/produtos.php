@@ -8,6 +8,20 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
 require_once '../config/db.php'; // Conexão com o DB
 
+// --- LÓGICA PARA LER OS LOGOS SVG DAS MARCAS ---
+$logos_disponiveis = [];
+$path_logos = '../uploads/marcas/'; // Caminho da sua pasta de logos
+$arquivos_svg = glob($path_logos . '*.svg'); // Pega apenas arquivos .svg
+
+if ($arquivos_svg) {
+    foreach ($arquivos_svg as $arquivo) {
+        // Salva o caminho relativo (sem o '../')
+        $logos_disponiveis[] = 'uploads/marcas/' . basename($arquivo);
+    }
+}
+sort($logos_disponiveis); // Ordena alfabeticamente
+// --- FIM DA LÓGICA DE LOGOS ---
+
 $message = '';
 $message_type = '';
 
@@ -180,6 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['salvar_produto'])) {
     $destaque = isset($_POST['destaque']);
     $mais_vendido = isset($_POST['mais_vendido']);
     $is_lancamento = isset($_POST['is_lancamento']); // <-- NOVO
+    $logo_svg_url = (!empty($_POST['logo_svg_url'])) ? trim($_POST['logo_svg_url']) : null; // <-- NOVO
 
     // Correção: Se for NOVO produto (sem ID) e ATIVO não for marcado, ele deve ser inativo (false)
     if (!$id && !isset($_POST['ativo'])) { $ativo = false; }
@@ -211,6 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['salvar_produto'])) {
                             ativo = :ativo,
                             mais_vendido = :mais_vendido,
                             is_lancamento = :is_lancamento -- <-- NOVO
+                            logo_svg_url = :logo_svg_url -- <-- NOVO
                         WHERE id = :id";
                 $stmt = $pdo->prepare($sql);
                 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -220,6 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['salvar_produto'])) {
                             estoque, imagem_url,
                             destaque, marca_id, ativo, mais_vendido,
                             is_lancamento, -- <-- NOVO
+                            logo_svg_url, -- <-- NOVO
                             criado_em
                         )
                         VALUES (
@@ -227,6 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['salvar_produto'])) {
                             :estoque, :imagem_url,
                             :destaque, :marca_id, :ativo, :mais_vendido,
                             :is_lancamento, -- <-- NOVO
+                            logo_svg_url, -- <-- NOVO
                             NOW()
                         )";
                 $stmt = $pdo->prepare($sql);
@@ -247,6 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['salvar_produto'])) {
             $stmt->bindParam(':destaque', $destaque, PDO::PARAM_BOOL);
             $stmt->bindParam(':mais_vendido', $mais_vendido, PDO::PARAM_BOOL);
             $stmt->bindParam(':is_lancamento', $is_lancamento, PDO::PARAM_BOOL); // <-- NOVO
+            $stmt->bindParam(':logo_svg_url', $logo_svg_url, $logo_svg_url === null ? PDO::PARAM_NULL : PDO::PARAM_STR); // <-- NOVO
             $stmt->execute();
 
             if ($id) {
@@ -334,7 +353,8 @@ try {
     // AJUSTE: Buscar a coluna 'is_lancamento'
     $stmt_produtos = $pdo->query("
         SELECT p.id, p.nome, p.preco, p.estoque, p.imagem_url, p.ativo,
-               p.destaque, p.mais_vendido, p.is_lancamento, m.nome AS marca_nome
+               p.destaque, p.mais_vendido, p.is_lancamento, p.logo_svg_url, 
+               m.nome AS marca_nome
         FROM produtos p
         LEFT JOIN marcas m ON p.marca_id = m.id
         ORDER BY m.nome ASC, p.nome ASC
@@ -581,11 +601,24 @@ $current_page = basename($_SERVER['PHP_SELF']);
                                 <label for="estoque">Estoque:</label>
                                 <input type="number" id="estoque" name="estoque" min="0" value="<?php echo htmlspecialchars($edit_produto['estoque'] ?? '0'); ?>" required>
                             </div>
+
+                            <div class="form-group">
+                                <label for="logo_svg_url">Logo da Marca (SVG):</label>
+                                <select id="logo_svg_url" name="logo_svg_url">
+                                    <option value="">-- Nenhuma --</option>
+                                    <?php foreach($logos_disponiveis as $logo_path): ?>
+                                        <option value="<?php echo $logo_path; ?>"
+                                            <?php 
+                                            // Marca o item como selecionado se estivermos editando e o valor bater
+                                            echo ($is_editing_produto && isset($edit_produto['logo_svg_url']) && $edit_produto['logo_svg_url'] == $logo_path) ? 'selected' : ''; 
+                                            ?>>
+                                            <?php echo basename($logo_path); // Mostra só o nome do arquivo (ex: mini-banner-pirelli.svg) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <p style="font-size: 0.8em; color: var(--light-text-color);">Selecione um logo da pasta /uploads/marcas/</p>
                             </div>
-                                <div class="form-group">
-                                    <label for="estoque">Estoque:</label>
-                                    <input type="number" id="estoque" name="estoque" min="0" value="<?php echo htmlspecialchars($edit_produto['estoque'] ?? '0'); ?>" required>
-                                </div>
+
                             </div>
 
                             <div class="form-grid">

@@ -378,7 +378,7 @@ function getLinkTagClose($banner) {
     position: absolute; /* Flutua sobre a imagem */
     top: 10px;      /* 10px do topo */
     left: 10px;     /* 10px da esquerda */
-    background-color: #e74c3c; /* Vermelho (cor da Casas Bahia) */
+    background-color: #18c009ff; /* Qualquer Cor */
     color: white;
     padding: 3px 8px;
     font-size: 13px; /* Tamanho da fonte do selo */

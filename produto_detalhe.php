@@ -711,28 +711,90 @@ try {
 }
 /* --- FIM CSS DETALHE --- */
 
-/* --- NOVOS ESTILOS PARA LOGO NO DETALHE --- */
+/* --- NOVOS ESTILOS (ETAPA 2) PARA LOGO NO DETALHE --- */
 .product-title-wrapper {
-    display: flex;
-    align-items: center; /* Alinha verticalmente */
-    gap: 12px; /* Espaço entre logo e nome */
-    /* Copia a margem que o h1 tinha */
-    margin: 0 0 10px 0; 
+    /* Removemos o flex, agora os itens vão empilhar */
+    margin: 0 0 10px 0; /* Mantém a margem que o h1 tinha */
 }
 
 .product-brand-logo-detail {
-    height: 35px; /* Um pouco maior na página de detalhe */
+    height: 35px;
     width: auto;
-    max-width: 100px; /* Largura máxima */
+    max-width: 100px;
     object-fit: contain;
-    flex-shrink: 0; /* Impede que a logo encolha */
+    margin-bottom: 10px; /* Espaço entre o logo e o título */
 }
 
-/* Remove a margem do h1, pois o wrapper agora a controla */
+/* O h1 já não tinha margem, o que é perfeito */
 .product-info h1 {
     margin: 0; 
 }
-/* --- FIM NOVOS ESTILOS --- */
+/* --- FIM NOVOS ESTILOS (ETAPA 2) --- */
+
+/* --- NOVOS ESTILOS - SELETOR QUANTIDADE --- */
+.quantity-selector {
+    margin-top: 20px;
+}
+.quantity-selector label {
+    display: block;
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+/* O novo container */
+.quantity-input-wrapper {
+    display: flex;
+    align-items: center;
+    width: 130px; /* Largura total do componente */
+    border: 1px solid var(--border-color-medium);
+    border-radius: 4px;
+    overflow: hidden; /* Para os cantos arredondados funcionarem */
+}
+
+/* Botões + e - */
+.quantity-btn {
+    width: 40px;
+    height: 40px;
+    background-color: #f5f5f5;
+    border: none;
+    cursor: pointer;
+    font-size: 1.8em;
+    color: var(--text-color-medium);
+    line-height: 1;
+    transition: background-color 0.2s ease;
+}
+.quantity-btn:hover {
+    background-color: #e9e9e9;
+}
+.quantity-btn.minus {
+    border-right: 1px solid var(--border-color-light);
+}
+.quantity-btn.plus {
+    border-left: 1px solid var(--border-color-light);
+}
+
+/* O campo de número (agora só de leitura) */
+.quantity-input {
+    width: 50px; /* Largura do campo do número */
+    height: 40px;
+    text-align: center;
+    border: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--text-color-dark);
+    padding: 0 5px;
+
+    /* Remove setas do input de número */
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+/* --- FIM SELETOR QUANTIDADE --- */
     </style>
 </head>
 <body>
@@ -874,9 +936,24 @@ if ($tem_desconto) {
                         <form id="add-to-cart-form" onsubmit="return false;">
                             <input type="hidden" id="produto-id" value="<?php echo $produto_id; ?>">
                             <div class="quantity-selector">
-                                <label for="quantity">Quantidade:</label>
-                                <input type="number" id="quantity" name="quantity" value="1" min="1" max="<?php echo $produto['estoque']; ?>">
-                            </div>
+                                <label for="quanity"t>Quantidade:</label>
+
+                                <div class="quantity-input-wrapper">
+                                    <button type="button" class="quantity-btn minus" id="quantity-minus" aria-label="Diminuir quantidade">-</button>
+
+                                    <input type="number" 
+                                           id="quantity" 
+                                           name="quantity" 
+                                           class="quantity-input" 
+                                           value="1" 
+                                           min="1" 
+                                           max="<?php echo $produto['estoque']; ?>"
+                                           data-max-stock="<?php echo $produto['estoque']; ?>" 
+                                           readonly> 
+
+                                    <button type="button" class="quantity-btn plus" id="quantity-plus" aria-label="Aumentar quantidade">+</button>
+                                </div>
+                                </div>
                             <button type="button" class="btn-comprar" id="btn-comprar">Comprar</button>
                         </form>
 
@@ -1123,6 +1200,31 @@ if ($tem_desconto) {
 
         // --- Script Central DOMContentLoaded (Específico da Página) ---
         document.addEventListener('DOMContentLoaded', function() {
+
+            // --- LÓGICA DO NOVO SELETOR DE QUANTIDADE ---
+const btnPlus = document.getElementById('quantity-plus');
+const btnMinus = document.getElementById('quantity-minus');
+const quantityInput = document.getElementById('quantity');
+
+if (btnPlus && btnMinus && quantityInput) {
+    // Pega o estoque máximo do atributo data
+    const maxStock = parseInt(quantityInput.getAttribute('data-max-stock'), 10);
+
+    btnPlus.addEventListener('click', () => {
+        let currentValue = parseInt(quantityInput.value, 10);
+        if (currentValue < maxStock) {
+            quantityInput.value = currentValue + 1;
+        }
+    });
+
+    btnMinus.addEventListener('click', () => {
+        let currentValue = parseInt(quantityInput.value, 10);
+        if (currentValue > 1) { // Não deixa ser menor que 1
+            quantityInput.value = currentValue - 1;
+        }
+    });
+}
+// --- FIM LÓGICA SELETOR ---
 
             // --- LÓGICA DAS ABAS (Descrição/Avaliação) ---
             const tabLinks = document.querySelectorAll('.tab-link');

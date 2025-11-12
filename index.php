@@ -47,7 +47,7 @@ try {
 $produtos_destaque = [];
 try {
     $stmt_destaque = $pdo->query("
-        SELECT id, nome, preco, preco_antigo, imagem_url, ativo, estoque
+        SELECT id, nome, preco, preco_antigo, imagem_url, ativo, estoque, logo_svg_url
         FROM produtos
         WHERE destaque = true
         ORDER BY nome ASC
@@ -62,7 +62,7 @@ try {
 $produtos_mais_vendidos = [];
 try {
     $stmt_mv = $pdo->query("
-        SELECT id, nome, preco, preco_antigo, imagem_url, ativo, estoque
+        SELECT id, nome, preco, preco_antigo, imagem_url, ativo, estoque, logo_svg_url
         FROM produtos
         WHERE mais_vendido = true
         ORDER BY nome ASC
@@ -444,6 +444,56 @@ function getLinkTagClose($banner) {
     }
 }
 /* --- FIM NOVOS ESTILOS --- */
+
+/* --- NOVOS ESTILOS PARA LOGO NO CARD --- */
+.product-name-wrapper {
+    display: flex;
+    align-items: center; /* Alinha verticalmente */
+    justify-content: flex-start; /* Alinha à esquerda */
+    gap: 8px; /* Espaço entre logo e nome */
+    /* O h3 original tinha margin-bottom: 10px, que agora está aqui */
+    margin-bottom: 10px; 
+
+    /* O h3 original tinha essas propriedades, que movemos para o wrapper */
+    height: 2.4em; 
+    line-height: 1.2em;
+    overflow: hidden;
+    min-height: 2.4em;
+}
+
+.product-brand-logo-grid {
+    height: 25px; /* Altura da logo */
+    width: auto;
+    max-width: 80px; /* Largura máxima */
+    object-fit: contain;
+    flex-shrink: 0; /* Impede a logo de encolher */
+}
+
+/* Ajusta o h3 para não ter mais margem e se alinhar */
+.product-item h3 {
+    margin-bottom: 0; /* Remove a margem do h3 */
+    text-align: left; /* Alinha o texto à esquerda, dentro do wrapper */
+
+    /* Remove o controle de altura do h3, pois o wrapper controla */
+    height: auto;
+    min-height: auto;
+    line-height: 1.2em;
+    /* Permite que o nome quebre em 2 linhas se necessário */
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Se não houver logo, centraliza o nome como antes */
+.product-name-wrapper.no-logo {
+     justify-content: center; /* Centraliza só o nome */
+}
+.product-name-wrapper.no-logo h3 {
+    text-align: center; /* Centraliza o texto */
+}
+/* --- FIM NOVOS ESTILOS --- */
     </style>
 </head>
 <body>
@@ -557,7 +607,12 @@ function getLinkTagClose($banner) {
                 </div>
             <?php endif; ?>
         </div>
-        <h3><?php echo htmlspecialchars($produto['nome']); ?></h3>
+        <div class="product-name-wrapper <?php echo empty($produto['logo_svg_url']) ? 'no-logo' : ''; ?>">
+            <?php if (!empty($produto['logo_svg_url'])): ?>
+                <img src="<?php echo htmlspecialchars($produto['logo_svg_url']); ?>" alt="Logo Marca" class="product-brand-logo-grid">
+            <?php endif; ?>
+            <h3><?php echo htmlspecialchars($produto['nome']); ?></h3>
+        </div>
 
         <div class="price-container">
             <?php if ($tem_desconto) : ?>

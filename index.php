@@ -249,16 +249,14 @@ function getLinkTagClose($banner) {
         .product-hover-buttons {
             position: absolute;
             bottom: 0;
-            left: -5;
+            left: 0;
             width: 100%;
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(2px);
             padding: 10px;
             display: flex;
-            flex-direction: column; /* NOVO: Empilha os botões */
-            justify-content: center;
-            align-items: center; /* NOVO: Centraliza os botões */
-            gap: 8px; /* NOVO: Espaço entre botões empilhados */
+            justify-content: center; /* <-- Voltamos para 'center' */
+            gap: 10px; /* <-- Voltamos para 10px */
             opacity: 0;
             visibility: hidden;
             transform: translateY(100%);
@@ -306,7 +304,8 @@ function getLinkTagClose($banner) {
             transition: background-color 0.2s ease, color 0.2s ease;
             background-color: var(--green-accent);
             color: #fff;
-            width: 90%; /* NOVO: Botões ocupam 90% da largura */
+            flex-grow: 1; /* <-- De volta ao original */
+            max-width: 47%; /* <-- De volta ao original */
         }
 
         /* NOVO AJUSTE: Aplicando a variável de cor de acento de hover */
@@ -672,7 +671,10 @@ function getLinkTagClose($banner) {
             <?php for ($i = 0; $i < $estrelas_vazias; $i++): ?>★<?php endfor; ?>
         </span>
         <span class="review-count-card">(<?php echo $produto['total_avaliacoes']; ?>)</span>
+    <?php else: ?>
+        <span class="stars-empty">★★★★★</span>
     <?php endif; ?>
+</div>
 </div>
 
         <div class="price-container">

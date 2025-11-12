@@ -231,24 +231,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['salvar_produto'])) {
                 $stmt = $pdo->prepare($sql);
                 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             } else { // INSERT
-                $sql = "INSERT INTO produtos (
-                            nome, descricao, preco, preco_antigo, -- <-- NOVO
-                            estoque, imagem_url,
-                            destaque, marca_id, ativo, mais_vendido,
-                            is_lancamento, -- <-- NOVO
-                            logo_svg_url, -- <-- NOVO
-                            criado_em
-                        )
-                        VALUES (
-                            :nome, :descricao, :preco, :preco_antigo, -- <-- NOVO
-                            :estoque, :imagem_url,
-                            :destaque, :marca_id, :ativo, :mais_vendido,
-                            :is_lancamento, -- <-- NOVO
-                            logo_svg_url, -- <-- NOVO
-                            NOW()
-                        )";
-                $stmt = $pdo->prepare($sql);
-            }
+    $sql = "INSERT INTO produtos (
+                nome, descricao, preco, preco_antigo, 
+                estoque, imagem_url,
+                destaque, marca_id, ativo, mais_vendido,
+                is_lancamento,
+                logo_svg_url, -- <-- Lista de Colunas (Correto)
+                criado_em
+            )
+            VALUES (
+                :nome, :descricao, :preco, :preco_antigo, 
+                :estoque, :imagem_url,
+                :destaque, :marca_id, :ativo, :mais_vendido,
+                :is_lancamento,
+                :logo_svg_url, -- <-- Lista de Placeholders (Corrigido com :)
+                NOW()
+            )";
+    $stmt = $pdo->prepare($sql);
+}
             $stmt->bindParam(':nome', $nome, PDO::PARAM_STR);
             $stmt->bindParam(':descricao', $descricao, PDO::PARAM_STR);
             $stmt->bindParam(':preco', $preco);

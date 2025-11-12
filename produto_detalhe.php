@@ -134,7 +134,7 @@ function getVimeoEmbedUrl($url) {
 // ==========================================================
 $avaliacoes = [];
 $total_avaliacoes = 0;
-$media_classificacao = 0; // <-- AQUI definimos ela com o valor 0
+$media_classificacao = 0;
 try {
     // AJUSTE NA QUERY: COALESCE(ap.nome_avaliador, u.nome, 'Anônimo')
     // Busca o nome manual do admin (nome_avaliador), se não houver, busca o nome do usuário (u.nome), se não houver, usa 'Anônimo'.
@@ -313,35 +313,14 @@ try {
         .product-item h3 { font-size: 0.95em; color: var(--text-color-dark); margin-bottom: 10px; height: 2.4em; line-height: 1.2em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; min-height: 2.4em; }
         .product-item .price { margin-top: auto; font-size: 1.75rem; color: var(--green-accent); font-weight: 700; line-height: 1; }
 
-/* ==========================================================
-ESTILOS - PÁGINA DE DETALHE DO PRODUTO (REFINADO)
-========================================================== */
+        /* ==========================================================
+           ESTILOS - PÁGINA DE DETALHE DO PRODUTO (REFINADO)
+           ========================================================== */
 
-/* --- AJUSTE: Exibição da Média de Avaliação (Detalhe) --- */
-.rating-display-detail {
-    font-size: 1.1em;
-    color: var(--text-color-medium);
-    margin-top: 15px; /* Espaço do item acima */
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    min-height: 20px; /* Alinhamento */
-}
-.rating-display-detail .stars {
-    color: #f39c12; /* Laranja */
-    font-size: 1.2em;
-    line-height: 1;
-}
-.rating-display-detail .stars-empty {
-    color: #ddd; /* Cinza */
-    font-size: 1.2em;
-    line-height: 1;
-}
-.rating-display-detail .review-count-detail {
-    font-size: 0.9em;
-    color: var(--text-color-light);
-}
-/* --- FIM AJUSTE --- */
+        /* --- Exibição da Média de Avaliação --- */
+        .rating-display { font-size: 1.5em; color: var(--text-color-medium); margin-top: 5px; display: flex; align-items: center; }
+        .rating-display .star { color: orange; }
+        .review-count { font-size: 0.9em; color: var(--text-color-light); margin-left: 10px; }
 
         /* --- AJUSTE: Estilos da Lista de Avaliações --- */
         .review-list-wrapper { margin-top: 20px; }
@@ -906,6 +885,18 @@ ESTILOS - PÁGINA DE DETALHE DO PRODUTO (REFINADO)
                     </div>
                     <span class="product-ref">Ref: SKU-<?php echo $produto['id']; ?></span>
 
+                    <?php if ($total_avaliacoes > 0): ?>
+                    <div class="rating-display">
+                        <?php
+                            // Renderiza estrelas cheias e vazias
+                            $full_stars = floor($media_classificacao);
+                            $empty_stars = 5 - $full_stars;
+                            for ($i = 0; $i < $full_stars; $i++) { echo '<span class="star">★</span>'; }
+                            for ($i = 0; $i < $empty_stars; $i++) { echo '<span class="star" style="opacity: 0.3;">★</span>'; }
+                        ?>
+                        <span class="review-count">(<?php echo $total_avaliacoes; ?> Avaliações)</span>
+                    </div>
+                    <?php endif; ?>
                     <?php if ($is_disponivel): ?>
                         <?php
 // --- Início da Lógica de Preço De/Por ---
@@ -932,29 +923,6 @@ if ($tem_desconto) {
     <?php if ($tem_desconto) : ?>
         <span class="preco-antigo-detail">De: R$ <?php echo number_format($preco_antigo, 2, ',', '.'); ?></span>
     <?php endif; ?>
-
-    <?php if ($total_avaliacoes > 0): ?>
-<div class="rating-display-detail">
-    <?php
-        // Arredonda para a estrela mais próxima
-        $media_arredondada_detalhe = round($media_classificacao);
-        $estrelas_cheias_detalhe = $media_arredondada_detalhe;
-        $estrelas_vazias_detalhe = 5 - $estrelas_cheias_detalhe;
-    ?>
-    <span class="stars">
-        <?php for ($i = 0; $i < $estrelas_cheias_detalhe; $i++): ?>★<?php endfor; ?>
-    </span>
-    <span class="stars-empty">
-        <?php for ($i = 0; $i < $estrelas_vazias_detalhe; $i++): ?>★<?php endfor; ?>
-    </span>
-    <span class="review-count-detail">(<?php echo $total_avaliacoes; ?> Avaliações)</span>
-</div>
-<?php else: ?>
-     <div class="rating-display-detail">
-        <span class="stars-empty">★★★★★</span>
-     </div>
-<?php endif; ?>
-<div class="price-container-detail">
     
     <p class="price preco-atual-detail" style="margin: 0; padding: 0; line-height: 1.1;">
         Por: R$ <?php echo number_format($preco_atual, 2, ',', '.'); ?>

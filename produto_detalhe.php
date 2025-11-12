@@ -930,7 +930,7 @@ if ($tem_desconto) {
 </div>
 
 <div class="frete-gratis-container-detail">
-    <img src="assets/img/frete-gratis.jpg" alt="Frete Grátis">
+    <img src="assets/img/frete-gratis.gif" alt="Frete Grátis">
 </div>
 
                         <form id="add-to-cart-form" onsubmit="return false;">

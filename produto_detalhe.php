@@ -710,6 +710,29 @@ try {
     object-fit: contain;
 }
 /* --- FIM CSS DETALHE --- */
+
+/* --- NOVOS ESTILOS PARA LOGO NO DETALHE --- */
+.product-title-wrapper {
+    display: flex;
+    align-items: center; /* Alinha verticalmente */
+    gap: 12px; /* Espaço entre logo e nome */
+    /* Copia a margem que o h1 tinha */
+    margin: 0 0 10px 0; 
+}
+
+.product-brand-logo-detail {
+    height: 35px; /* Um pouco maior na página de detalhe */
+    width: auto;
+    max-width: 100px; /* Largura máxima */
+    object-fit: contain;
+    flex-shrink: 0; /* Impede que a logo encolha */
+}
+
+/* Remove a margem do h1, pois o wrapper agora a controla */
+.product-info h1 {
+    margin: 0; 
+}
+/* --- FIM NOVOS ESTILOS --- */
     </style>
 </head>
 <body>
@@ -792,7 +815,12 @@ try {
                         <span class="tag-lancamento">Lançamento!</span>
                     <?php endif; ?>
 
-                    <h1><?php echo htmlspecialchars($produto['nome']); ?></h1>
+                    <div class="product-title-wrapper">
+                        <?php if (!empty($produto['logo_svg_url'])): ?>
+                            <img src="<?php echo htmlspecialchars($produto['logo_svg_url']); ?>" alt="Logo Marca" class="product-brand-logo-detail">
+                        <?php endif; ?>
+                        <h1><?php echo htmlspecialchars($produto['nome']); ?></h1>
+                    </div>
                     <span class="product-ref">Ref: SKU-<?php echo $produto['id']; ?></span>
 
                     <?php if ($total_avaliacoes > 0): ?>

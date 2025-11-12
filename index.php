@@ -445,55 +445,58 @@ function getLinkTagClose($banner) {
 }
 /* --- FIM NOVOS ESTILOS --- */
 
-/* --- NOVOS ESTILOS PARA LOGO NO CARD --- */
-.product-name-wrapper {
-    display: flex;
-    align-items: center; /* Alinha verticalmente */
-    justify-content: flex-start; /* Alinha à esquerda */
-    gap: 8px; /* Espaço entre logo e nome */
-    /* O h3 original tinha margin-bottom: 10px, que agora está aqui */
-    margin-bottom: 10px; 
+/* --- NOVOS ESTILOS (ETAPA 2) PARA LOGO NO CARD --- */
 
-    /* O h3 original tinha essas propriedades, que movemos para o wrapper */
+/* Este é o <div> que segura o logo e o nome */
+.product-name-wrapper {
+    /* Removemos o flex e a altura fixa */
+    /* Isso permite que o bloco cresça verticalmente */
+    margin-bottom: 10px; /* Mantém a margem que o h3 tinha */
+    /* Adicionamos uma altura mínima para o logo e o nome */
+    min-height: 5.4em; 
+    display: flex;
+    flex-direction: column; /* Coloca os itens em coluna (um em cima do outro) */
+    justify-content: flex-start; /* Alinha no topo */
+    align-items: center; /* Centraliza horizontalmente */
+}
+
+/* A imagem do logo */
+.product-brand-logo-grid {
+    height: 25px; /* Altura da logo */
+    max-width: 80px; /* Largura máxima */
+    object-fit: contain;
+    margin-bottom: 8px; /* Espaço entre o logo e o nome */
+    flex-shrink: 0;
+}
+
+/* O nome do produto (h3) */
+.product-item h3 {
+    font-size: 0.95em;
+    color: var(--text-color-dark);
+    text-align: center; /* Centraliza o nome */
+    margin-bottom: 0; /* Remove a margem, pois o wrapper já tem */
+
+    /* O clamp de 2 linhas */
     height: 2.4em; 
     line-height: 1.2em;
     overflow: hidden;
-    min-height: 2.4em;
-}
-
-.product-brand-logo-grid {
-    height: 25px; /* Altura da logo */
-    width: auto;
-    max-width: 80px; /* Largura máxima */
-    object-fit: contain;
-    flex-shrink: 0; /* Impede a logo de encolher */
-}
-
-/* Ajusta o h3 para não ter mais margem e se alinhar */
-.product-item h3 {
-    margin-bottom: 0; /* Remove a margem do h3 */
-    text-align: left; /* Alinha o texto à esquerda, dentro do wrapper */
-
-    /* Remove o controle de altura do h3, pois o wrapper controla */
-    height: auto;
-    min-height: auto;
-    line-height: 1.2em;
-    /* Permite que o nome quebre em 2 linhas se necessário */
-    overflow: hidden; 
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    min-height: 2.4em;
 }
 
-/* Se não houver logo, centraliza o nome como antes */
+/* Seletor para quando NÃO houver logo: 
+   Centraliza o nome verticalmente para não ficar um buraco.
+*/
 .product-name-wrapper.no-logo {
-     justify-content: center; /* Centraliza só o nome */
+     justify-content: center; /* Centraliza o nome verticalmente */
 }
-.product-name-wrapper.no-logo h3 {
-    text-align: center; /* Centraliza o texto */
+.product-name-wrapper.no-logo .product-brand-logo-grid {
+    display: none; /* Garante que não ocupe espaço */
 }
-/* --- FIM NOVOS ESTILOS --- */
+/* --- FIM NOVOS ESTILOS (ETAPA 2) --- */
     </style>
 </head>
 <body>
@@ -608,11 +611,11 @@ function getLinkTagClose($banner) {
             <?php endif; ?>
         </div>
         <div class="product-name-wrapper <?php echo empty($produto['logo_svg_url']) ? 'no-logo' : ''; ?>">
-            <?php if (!empty($produto['logo_svg_url'])): ?>
-                <img src="<?php echo htmlspecialchars($produto['logo_svg_url']); ?>" alt="Logo Marca" class="product-brand-logo-grid">
-            <?php endif; ?>
-            <h3><?php echo htmlspecialchars($produto['nome']); ?></h3>
-        </div>
+    <?php if (!empty($produto['logo_svg_url'])): ?>
+        <img src="<?php echo htmlspecialchars($produto['logo_svg_url']); ?>" alt="Logo Marca" class="product-brand-logo-grid">
+    <?php endif; ?>
+    <h3><?php echo htmlspecialchars($produto['nome']); ?></h3>
+</div>
 
         <div class="price-container">
             <?php if ($tem_desconto) : ?>

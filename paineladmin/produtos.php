@@ -225,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['salvar_produto'])) {
                             marca_id = :marca_id,
                             ativo = :ativo,
                             mais_vendido = :mais_vendido,
-                            is_lancamento = :is_lancamento -- <-- NOVO
+                            is_lancamento = :is_lancamento,
                             logo_svg_url = :logo_svg_url -- <-- NOVO
                         WHERE id = :id";
                 $stmt = $pdo->prepare($sql);

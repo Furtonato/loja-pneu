@@ -354,7 +354,9 @@ $user_initial = strtoupper(substr($_SESSION['admin_username'], 0, 1));
     <div class="user-profile" id="user-profile-menu">
         <div class="avatar"><?php echo $user_initial; ?></div>
         <div class="user-info">
-            <span class="user-name"><?php echo htmlspecialchars($_SESSION['admin_username']); ?></span>
+            <span class="user-name">
+                <?php echo htmlspecialchars($_SESSION['admin_username'] ?? 'Administrador'); ?>
+            </span>
             <span class="user-level">Administrador</span>
         </div>
         <div class="profile-dropdown" id="profile-dropdown">
